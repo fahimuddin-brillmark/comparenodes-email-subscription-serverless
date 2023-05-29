@@ -54,10 +54,10 @@ module.exports.handler = async (event) => {
 		console.log("Body: ", body);
 
 		return {
-			statusCode: 200,
+			statusCode: body.statusCode,
 			body: JSON.stringify({
-				message: `Successfully Finished Operations: "${event.requestContext.http.method}"`,
-				body: body,
+				message: body.message,
+				body: body.result,
 			}),
 		};
 	} catch (e) {
@@ -87,7 +87,12 @@ const getJsonResult = async (event) => {
 
 	console.log("getJsonResult: ", Items);
 
-	return Items;
+	// return Items;
+	return {
+		statusCode: 200,
+		message: `Successfully Finished Operations: "${event.requestContext.http.method}"`,
+		result: Items,
+	};
 };
 
 const getCsvResult = async (event) => {
@@ -136,14 +141,36 @@ const getCsvResult = async (event) => {
 
 	console.log("URL: ", url);
 
-	return url;
+	// return url;
+	return {
+		statusCode: 200,
+		message: `Successfully Finished Operations: "${event.requestContext.http.method}"`,
+		result: url,
+	};
 };
 
 const addSubscribedEmail = async (event) => {
 	const { email } = JSON.parse(event.body);
-	console.log("Email: ", email);
+	console.log("Request Email: ", email);
 
-	const result = SubscriptionEmailModel.create({ email: email });
+	const existingUser = await SubscriptionEmailModel.get(email);
+	console.log("existingUser: ", existingUser);
+	if (existingUser?.email) {
+		// return `${email} is already exist.`;
+		return {
+			statusCode: 409,
+			message: `Conflict! ${email} is already exist.`,
+			result: "",
+		};
+	}
 
-	return result;
+	const result = await SubscriptionEmailModel.create({ email: email });
+	console.log("addSubscribedEmail Result: ", result);
+
+	// return result;
+	return {
+		statusCode: 200,
+		message: `Successfully Finished Operations: "${event.requestContext.http.method}"`,
+		result: result,
+	};
 };
