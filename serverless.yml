@@ -1,0 +1,47 @@
+service: comparenodes-emails-service
+frameworkVersion: "3"
+
+custom:
+  TableName: "cn-email-subscriptions-${opt:stage, self:provider.stage}"
+  BucketName: 'comparenodes-email-subscriptions-${opt:stage, self:provider.stage}'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: dev
+  region: us-east-1
+  memorySize: 512
+  environment:
+    TABLE_NAME: ${self:custom.TableName}
+    ACCESS_KEY: AKIA437JI3L75EQOOIOI
+    SECRET_ACCESS_KEY: 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
+    REGION_NAME: ${self:provider.region}
+    BUCKET_NAME: ${self:custom.BucketName}
+  httpApi:
+    cors: true
+
+functions:
+  emails:
+    handler: index.handler
+    events:
+      - httpApi:
+          path: /emails
+          method: post
+      # - httpApi:
+      #     path: /emails
+      #     method: get
+      # - httpApi:
+      #     path: /emails/{format}
+      #     method: get
+
+resources:
+  Resources:
+    OutputBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.BucketName}
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          BlockPublicPolicy: true
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: true
