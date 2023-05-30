@@ -13,8 +13,8 @@ provider:
   memorySize: 512
   environment:
     TABLE_NAME: ${self:custom.TableName}
-    ACCESS_KEY: AKIA437JI3L75EQOOIOI
-    SECRET_ACCESS_KEY: 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
+    ACCESS_KEY: ACCESSKEY
+    SECRET_ACCESS_KEY: SECRETKEY
     REGION_NAME: ${self:provider.region}
     BUCKET_NAME: ${self:custom.BucketName}
   httpApi:
